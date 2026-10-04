@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Intelligence & Action Item Extraction System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        <line x1="9" y1="10" x2="15" y2="10"></line>
+                        <line x1="12" y1="7" x2="12" y2="13"></line>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h2>Meeting Intelligence</h2>
+                    <span>Workspace NLP Platform</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-group-label">NAVIGATION</div>
+                <a href="#workspace" class="nav-item active" data-section="workspace">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span>Meeting Workspace</span>
+                </a>
+                <a href="#workspace" class="nav-item" id="nav-record-btn" onclick="scrollToSection('workspace'); startRecording();">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                    <span>Record Meeting</span>
+                </a>
+                <a href="#transcript-section" class="nav-item" data-section="transcript-section">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>Transcript</span>
+                </a>
+
+                <div class="nav-group-label">EXTRACTED INSIGHTS</div>
+                <a href="#action-items" class="nav-item" data-section="action-items">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                    <span>Action Items</span>
+                    <span class="nav-badge" id="nav-action-count">0</span>
+                </a>
+                <a href="#decisions" class="nav-item" data-section="decisions">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>Decisions</span>
+                    <span class="nav-badge" id="nav-decision-count">0</span>
+                </a>
+                <a href="#topics" class="nav-item" data-section="topics">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                    <span>Topics</span>
+                    <span class="nav-badge" id="nav-topic-count">0</span>
+                </a>
+                <a href="#questions" class="nav-item" data-section="questions">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span>Questions</span>
+                    <span class="nav-badge" id="nav-question-count">0</span>
+                </a>
+                <a href="#issues" class="nav-item" data-section="issues">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span>Issues</span>
+                    <span class="nav-badge badge-warning" id="nav-issue-count">0</span>
+                </a>
+                <a href="#analysis" class="nav-item" data-section="analysis">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span>Analysis</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="system-info">
+                    <div class="info-dot"></div>
+                    <span>Python Scikit-Learn NLP Engine</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- TOP HEADER -->
+            <header class="top-header">
+                <div class="header-title-container">
+                    <h1>Meeting Intelligence</h1>
+                    <p class="subtitle">Convert conversations into structured meeting insights using natural language processing.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="record-toggle-btn" onclick="toggleRecording()">
+                        <span class="btn-icon">🎙️</span>
+                        <span id="record-btn-text">Record Meeting</span>
+                    </button>
+                    <button class="btn btn-secondary" id="paste-btn" onclick="loadSampleTranscript()">
+                        <span class="btn-icon">📋</span>
+                        <span>Load Sample</span>
+                    </button>
+                    <button class="btn btn-primary" id="analyze-btn" onclick="analyzeTranscript()">
+                        <span class="btn-icon">⚡</span>
+                        <span>Analyze Meeting</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- NOTIFICATION / STATUS BANNER -->
+            <div id="status-banner" class="status-banner hidden">
+                <div class="banner-content">
+                    <span id="banner-icon" class="banner-icon">ℹ️</span>
+                    <span id="banner-text">Ready to record or enter transcript text.</span>
+                </div>
+                <button class="banner-close" onclick="closeBanner()">✕</button>
+            </div>
+
+            <!-- WORKSPACE DASHBOARD CONTENT -->
+            <div class="dashboard-content">
+                
+                <!-- TRANSCRIPT WORKSPACE SECTION -->
+                <section id="workspace" class="workspace-section">
+                    <div class="section-card editor-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                <h3>Meeting Transcript Workspace</h3>
+                            </div>
+                            <div class="editor-stats">
+                                <span class="recording-badge hidden" id="recording-indicator">
+                                    <span class="pulse-dot"></span> Listening...
+                                </span>
+                                <span class="stat-tag" id="live-word-count">0 words</span>
+                                <button class="btn-text" onclick="clearTranscript()" title="Clear Transcript Editor">Clear</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <textarea 
+                                id="transcript-input" 
+                                class="transcript-textarea" 
+                                placeholder="Paste your meeting transcript here or click 'Record Meeting' to use live speech recognition..."
+                                oninput="updateWordCount()"
+                            ></textarea>
+                        </div>
+                        <div class="card-footer">
+                            <span class="helper-text">💡 Tip: Web Speech API transcribes live audio in supported browsers. You can also directly edit text before analysis.</span>
+                            <button class="btn btn-primary btn-sm" onclick="analyzeTranscript()">Analyze Meeting</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STATS OVERVIEW CARDS -->
+                <section id="stats-overview" class="stats-overview">
+                    <div class="stat-card">
+                        <div class="stat-icon icon-sage">📝</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-words">0</span>
+                            <span class="stat-label">Word Count</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-forest">✅</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-action-items">0</span>
+                            <span class="stat-label">Action Items</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-teal">📌</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-decisions">0</span>
+                            <span class="stat-label">Decisions</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-sand">🏷️</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-topics">0</span>
+                            <span class="stat-label">Topics</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-charcoal">❓</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-questions">0</span>
+                            <span class="stat-label">Questions</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-warning">⚠️</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-issues">0</span>
+                            <span class="stat-label">Issues / Blockers</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ACTION ITEMS SECTION -->
+                <section id="action-items" class="section-container">
+                    <div class="section-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span class="header-icon">📋</span>
+                                <h3>Action Items & Tasks</h3>
+                            </div>
+                            <span class="card-badge" id="action-table-count">0 items</span>
+                        </div>
+                        <div class="card-body no-padding">
+                            <div class="table-responsive">
+                                <table class="data-table" id="action-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Task Description</th>
+                                            <th>Assignee</th>
+                                            <th>Deadline</th>
+                                            <th>Source Sentence</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="action-items-tbody">
+                                        <tr class="empty-row">
+                                            <td colspan="4" class="text-center">No action items analyzed yet. Paste transcript and click "Analyze Meeting".</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- DECISIONS SECTION -->
+                <section id="decisions" class="section-container">
+                    <div class="section-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span class="header-icon">🎯</span>
+                                <h3>Decisions Agreed Upon</h3>
+                            </div>
+                            <span class="card-badge" id="decisions-count-badge">0 decisions</span>
+                        </div>
+                        <div class="card-body">
+                            <div id="decisions-list" class="insights-grid">
+                                <div class="empty-state">No decisions detected yet.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TOPICS SECTION -->
+                <section id="topics" class="section-container">
+                    <div class="section-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span class="header-icon">🏷️</span>
+                                <h3>Key Topics & Terminology</h3>
+                            </div>
+                            <span class="card-badge" id="topics-count-badge">0 topics</span>
+                        </div>
+                        <div class="card-body">
+                            <div id="topics-tags" class="tags-container">
+                                <div class="empty-state">No topics extracted yet.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- QUESTIONS SECTION -->
+                <section id="questions" class="section-container">
+                    <div class="section-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span class="header-icon">❓</span>
+                                <h3>Questions Raised</h3>
+                            </div>
+                            <span class="card-badge" id="questions-count-badge">0 questions</span>
+                        </div>
+                        <div class="card-body">
+                            <div id="questions-list" class="insights-list">
+                                <div class="empty-state">No questions detected yet.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ISSUES SECTION -->
+                <section id="issues" class="section-container">
+                    <div class="section-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span class="header-icon">⚠️</span>
+                                <h3>Issues & Blockers</h3>
+                            </div>
+                            <span class="card-badge badge-warning-bg" id="issues-count-badge">0 issues</span>
+                        </div>
+                        <div class="card-body">
+                            <div id="issues-list" class="issues-container">
+                                <div class="empty-state">No blockers or issues detected.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ANALYSIS SECTION -->
+                <section id="analysis" class="section-container">
+                    <div class="section-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span class="header-icon">📊</span>
+                                <h3>NLP Analysis & Important Sentences</h3>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="analysis-grid">
+                                <div class="important-sentences-box">
+                                    <h4>Top Ranked Sentences (TF-IDF Density Score)</h4>
+                                    <div id="important-sentences-list" class="ranked-list">
+                                        <div class="empty-state">Sentences will be ranked after meeting analysis.</div>
+                                    </div>
+                                </div>
+                                <div class="summary-metrics-box">
+                                    <h4>Meeting Composition Metrics</h4>
+                                    <div class="metrics-list" id="metrics-details">
+                                        <div class="metric-row">
+                                            <span>Sentence Count:</span>
+                                            <strong id="metric-sentences">0</strong>
+                                        </div>
+                                        <div class="metric-row">
+                                            <span>Action Density:</span>
+                                            <strong id="metric-action-density">0%</strong>
+                                        </div>
+                                        <div class="metric-row">
+                                            <span>Decision Density:</span>
+                                            <strong id="metric-decision-density">0%</strong>
+                                        </div>
+                                        <div class="metric-row">
+                                            <span>NLP Engine:</span>
+                                            <strong>TF-IDF & Rule-based Classifier</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

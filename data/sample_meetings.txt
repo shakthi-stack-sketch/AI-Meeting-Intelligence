@@ -1,0 +1,1 @@
+Good morning everyone. Shakthi will complete the frontend implementation by Friday. Rahul will prepare the database schema by Wednesday. We decided to use PostgreSQL for the project. The login module is still causing an issue. Priya asked whether we can finish testing this week. The team agreed to conduct testing on Thursday.
